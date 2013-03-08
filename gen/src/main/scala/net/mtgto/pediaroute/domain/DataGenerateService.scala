@@ -21,9 +21,10 @@ class DataGenerateService {
       }
     // id to index
     val idToIndexMap: Map[Int, Int] = titleToIds.map(_._2).zipWithIndex.toMap
-    val (forwardLinks, backwardLinks) = loadPageLinks(idToIndexMap, titleToIds)
-    writeForwardLinks(forwardLinks)
-    writeBackwardLinks(backwardLinks)
+    val links: Array[(Int, Int)] = loadPageLinks(idToIndexMap)
+    println("num of links = " + links.length)
+    writeForwardLinks(titleToIds.length, links.sortBy(_._1))
+    writeBackwardLinks(titleToIds.length, links.sortBy(_._2))
   }
 
   def writeTitleToIds(titleToIds: Array[(String, Int)]): Unit = {
@@ -47,27 +48,45 @@ class DataGenerateService {
     }.toArray[(String, Int)]
   }
 
-  def writeForwardLinks(links: Array[Seq[Int]]): Unit = {
+  def writeForwardLinks(indexCount: Int, links: Array[(Int, Int)]): Unit = {
     val output = Resource.fromFile("forwardlinks.dat")
     for {
       processor <- output.outputProcessor
       out = processor.asOutput
     } {
-      links.foreach { ary =>
-        out.writeStrings(ary.map(_.toString), ",")
+      var row = 0
+      for (index <- 0 until indexCount) {
+        var colIndex = 0
+        for (i <- row until links.length if links(i)._1 == index) {
+          if (colIndex != 0) {
+            out.write(",")
+          }
+          out.write(links(i)._2.toString)
+          colIndex += 1
+          row += 1
+        }
         out.write("\n")
       }
     }
   }
 
-  def writeBackwardLinks(links: Array[Seq[Int]]): Unit = {
+  def writeBackwardLinks(indexCount: Int, links: Array[(Int, Int)]): Unit = {
     val output = Resource.fromFile("backwardlinks.dat")
     for {
       processor <- output.outputProcessor
       out = processor.asOutput
     } {
-      links.foreach { ary =>
-        out.writeStrings(ary.map(_.toString), ",")
+      var row = 0
+      for (index <- 0 until indexCount) {
+        var colIndex = 0
+        for (i <- row until links.length if links(i)._2 == index) {
+          if (colIndex != 0) {
+            out.write(",")
+          }
+          out.write(links(i)._1.toString)
+          colIndex += 1
+          row += 1
+        }
         out.write("\n")
       }
     }
@@ -89,27 +108,29 @@ class DataGenerateService {
     }
   }
 
-  def loadPageLinks(idToIndexMap: Map[Int, Int], titleToIds: Array[(String, Int)]): (Array[Seq[Int]], Array[Seq[Int]]) = {
+  def loadPageLinks(idToIndexMap: Map[Int, Int]): Array[(Int, Int)] = {
     Database.forURL("jdbc:mysql://localhost/wikipedia", driver = "com.mysql.jdbc.Driver", user = "user") withSession { implicit session: Session =>
+      val rowCount = 49486640
+      val perRowCount = 10000000
+      val links = new Array[(Int, Int)](rowCount)
       val query = for {
         pageLink <- PageLinks
         page <- Pages if pageLink.title === page.title && pageLink.namespace === 0L && page.namespace === 0L && page.isRedirect === false
       } yield (pageLink.from, page.id)
-      val forwardLinks: Array[Seq[Int]] = titleToIds.map(_ => Seq.empty[Int])
-      val backwardLinks: Array[Seq[Int]] = titleToIds.map(_ => Seq.empty[Int])
-      for (i <- 0 until 4949; subquery = query.drop(i*10000).take(10000)) {
+      var index = 0
+      for (i <- 0 until rowCount by perRowCount; subquery = query.drop(i).take(perRowCount)) {
         subquery.foreach {
           case (fromId, toId) => {
             val fromIndex = idToIndexMap.getOrElse(fromId, -1)
             val toIndex = idToIndexMap.getOrElse(toId, -1)
             if (fromIndex >= 0 && toIndex >= 0) {
-              forwardLinks(fromIndex) +:= toIndex
-              backwardLinks(toIndex) +:= fromIndex
+              links(index) = (fromIndex, toIndex)
+              index += 1
             }
           }
         }
       }
-      (forwardLinks, backwardLinks)
+      links.take(index)
     }
   }
 }
