@@ -1,6 +1,6 @@
 package net.mtgto.pediaroute.domain
 
-class Query(from: String, to: String, way: Seq[String]) {
+class Query(val from: String, val to: String, way: Seq[String]) {
   private val pair: (String, String) = (from, to)
 
   override def hashCode: Int = {

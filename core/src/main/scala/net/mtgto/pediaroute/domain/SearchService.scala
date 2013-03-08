@@ -1,17 +1,12 @@
 package net.mtgto.pediaroute.domain
 
+import annotation.tailrec
 import collection.mutable.{Map, HashMap, Set, HashSet, LinkedList}
+import util.Random
 
-class SearchService {
+class SearchService(
+  titleMap: Map[String, Int], titleIdMap: Array[String], links: Array[Array[Int]], revLinks: Array[Array[Int]]) {
   private val MaxDepth = 6
-
-  private val titleMap: Map[String, Int] = Map("東京" -> 0, "大学" -> 1, "高尾山" -> 2, "紅葉狩り" -> 3, "文京区" -> 4, "本郷" -> 5)
-
-  private val titleIdMap: Array[String] = Array("東京", "大学", "高尾山", "紅葉狩り", "文京区", "本郷")
-
-  private val links: Array[Array[Int]] = Array(Array(2,4), Array(), Array(0,3), Array(), Array(0,5), Array(1))
-
-  private val revLinks: Array[Array[Int]] = Array(Array(2,4), Array(5), Array(0), Array(2), Array(0), Array(4))
 
   private def getIndexSet(word: String): Option[Set[Int]] = {
     titleMap.get(word).map { index =>
@@ -79,5 +74,27 @@ class SearchService {
       }
     }
     return None
+  }
+
+  def getRandomQuery: Query = {
+    new Query(getRandomWordFrom, getRandomWordTo, Seq.empty[String])
+  }
+
+  @tailrec
+  private def getRandomWordFrom: String = {
+    val index = Random.nextInt(titleIdMap.length)
+    if (links(index).length > 0)
+      titleIdMap(index)
+    else
+      getRandomWordFrom
+  }
+
+  @tailrec
+  private def getRandomWordTo: String = {
+    val index = Random.nextInt(titleIdMap.length)
+    if (revLinks(index).length > 0)
+      titleIdMap(index)
+    else
+      getRandomWordTo
   }
 }
