@@ -1,7 +1,7 @@
 package net.mtgto.pediaroute.domain
 
 import annotation.tailrec
-import collection.mutable.{Map, HashMap, Set, HashSet, LinkedList}
+import collection.mutable.{Set, HashSet, LinkedList}
 import util.Random
 
 class SearchService(
