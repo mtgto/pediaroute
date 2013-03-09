@@ -55,6 +55,7 @@ class DataGenerateService {
       out = processor.asOutput
     } {
       var lastIndex = 0
+      var first = true
       links.foreach { link =>
         val fromIndex = (link % 4294967296L).toInt
         val toIndex = (link / 4294967296L).toInt
@@ -63,9 +64,10 @@ class DataGenerateService {
             out.write("\n")
           }
           lastIndex = fromIndex
-        } else {
+        } else if (!first) {
           out.write(",")
         }
+        first = false
         out.write(toIndex.toString)
       }
     }
@@ -78,6 +80,7 @@ class DataGenerateService {
       out = processor.asOutput
     } {
       var lastIndex = 0
+      var first = true
       links.foreach { link =>
         val fromIndex = (link % 4294967296L).toInt
         val toIndex = (link / 4294967296L).toInt
@@ -86,9 +89,10 @@ class DataGenerateService {
             out.write("\n")
           }
           lastIndex = toIndex
-        } else {
+        } else if (!first) {
           out.write(",")
         }
+        first = false
         out.write(fromIndex.toString)
       }
     }
@@ -112,7 +116,7 @@ class DataGenerateService {
 
   def loadPageLinks(idToIndexMap: Map[Int, Int]): Array[Long] = {
     Database.forURL("jdbc:mysql://localhost/wikipedia", driver = "com.mysql.jdbc.Driver", user = "user") withSession { implicit session: Session =>
-      val rowCount = 49486640
+      val rowCount = 56235188
       val perRowCount = 10000000
       val links = new Array[Long](rowCount)
       val query = for {
