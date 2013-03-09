@@ -5,7 +5,7 @@
 @main("\"" + wordFrom + "\" \"" + wordTo + "\"の検索結果 - Wikipediaで6回リンク辿ればいけるか調べる(仮)") {
     <header>
         <h1><span>P</span>edia<span>R</span>oute.com</h1>
-        <p>「@wordFrom」から「@wordTo」へのリンクの検索結果 (実行時間 @time sec)</p>
+        <p>「@wordFrom」から「@wordTo」へのリンクの検索結果 (実行時間 @("%.3f".format(time)) sec)</p>
     </header>
     @result match {
         case Left(wordList) => {
@@ -27,8 +27,15 @@
     }
     <aside id="links">
       <ul>
-        <li><a href="@routes.Application.search">todo link「@wordTo」から「@wordFrom」を検索する</a></li>
-        <li><a href="https://twitter.com/home?status=「@helper.urlEncode(wordFrom)」から「@helper.urlEncode(wordTo)」へはWikipediaでXXリンクでいけます@helper.urlEncode("#pediaroute") target="_blank">結果をTwitterにつぶやく (別ウィンドウで開きます)</a></li>
+        <li><a href="@routes.Application.search(wordTo, wordFrom)">「@wordTo」から「@wordFrom」を検索する</a></li>
+        @result match {
+            case Left(wordList) => {
+                <li><a href="https://twitter.com/home?status=「@helper.urlEncode(wordFrom)」から「@helper.urlEncode(wordTo)」へはWikipediaで@(wordList.length)リンクで行けるよ！ @helper.urlEncode("#pediaroute")" target="_blank">結果をTwitterにつぶやく (別ウィンドウで開きます)</a></li>
+            }
+            case Right(_) => {
+                <li><a href="https://twitter.com/home?status=「@helper.urlEncode(wordFrom)」から「@helper.urlEncode(wordTo)」へはWikipediaで6回のリンクじゃいけないみたい… @helper.urlEncode("#pediaroute")" target="_blank">結果をTwitterにつぶやく (別ウィンドウで開きます)</a></li>
+            }
+        }
       </ul>
     </aside>
     <footer>

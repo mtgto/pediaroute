@@ -12,14 +12,14 @@
         @twitter_widget()
     </aside>
     <article>
-        @helper.form(action = routes.Application.search) {
+        <form action="/search" method="get">
             <fieldset>
                 <p><label><input type="text" class="word" name="wordFrom" id="wordFrom" />から</label></p>
                 <p><label><input type="text" class="word" name="wordTo" id="wordTo" />へのルートを</label></p>
             </fieldset>
             <input type="submit" class="submit" value="検索" />
             <input type="button" id="getRandom" value="ランダムに２つのページを選択" />
-        }
+        </form>
     </article>
     <aside id="history">
         <h2>更新履歴</h2>
