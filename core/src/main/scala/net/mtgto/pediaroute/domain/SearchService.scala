@@ -32,7 +32,7 @@ class SearchService(
   /**
    * みつからなかったらNoneを返す
    */
-  def find(startSet: Set[Int], goalSet: Set[Int], depth: Int): Option[LinkedList[Int]] = {
+  private def find(startSet: Set[Int], goalSet: Set[Int], depth: Int): Option[LinkedList[Int]] = {
     if (depth >= MaxDepth) {
       return None
     }
@@ -74,6 +74,10 @@ class SearchService(
       }
     }
     return None
+  }
+
+  def isTitleExists(title: String): Boolean = {
+    titleMap.contains(title)
   }
 
   def getRandomQuery: Query = {

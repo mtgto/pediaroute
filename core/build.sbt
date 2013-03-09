@@ -15,5 +15,3 @@ libraryDependencies := Seq(
 )
 
 scalacOptions ++= Seq("-deprecation", "-unchecked", "-Xlint", "-feature", "-encoding", "UTF8")
-
-fork in test := true
