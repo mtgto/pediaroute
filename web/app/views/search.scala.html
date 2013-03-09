@@ -1,0 +1,38 @@
+@(wordFrom: String, wordTo: String, result: Either[Seq[String], String], time: Double)
+
+@import tags._
+
+@main("\"" + wordFrom + "\" \"" + wordTo + "\"の検索結果 - Wikipediaで6回リンク辿ればいけるか調べる(仮)") {
+    <header>
+        <h1><span>P</span>edia<span>R</span>oute.com</h1>
+        <p>「@wordFrom」から「@wordTo」へのリンクの検索結果 (実行時間 @time sec)</p>
+    </header>
+    @result match {
+        case Left(wordList) => {
+            <article>
+                <ol start="0">
+                @for(word <- wordList) {
+                    <li>@wikipedia_link(word)</word>
+                }
+                </ol>
+            </article>
+        }
+        case Right(error) => {
+            <aside class="error">
+                <ul>
+                    <li>@error</li>
+                </ul>
+            </aside>
+        }
+    }
+    <aside id="links">
+      <ul>
+        <li><a href="@routes.Application.search">todo link「@wordTo」から「@wordFrom」を検索する</a></li>
+        <li><a href="https://twitter.com/home?status=「@helper.urlEncode(wordFrom)」から「@helper.urlEncode(wordTo)」へはWikipediaでXXリンクでいけます@helper.urlEncode("#pediaroute") target="_blank">結果をTwitterにつぶやく (別ウィンドウで開きます)</a></li>
+      </ul>
+    </aside>
+    <footer>
+      <p><a href="/">トップへ戻る</a></p>
+      <address>なにかありましたら<a href="http://twitter.com/mtgto">@@mtgto</a>まで</address>
+    </footer>
+}

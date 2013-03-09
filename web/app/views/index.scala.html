@@ -1,0 +1,40 @@
+@(searchForm: Form[(String, String)])
+
+@import helper._
+@import tags._
+
+@main("Wikipediaで6回リンク辿ればいけるか調べる(仮)") {
+    <header>
+        <h1><span>P</span>edia<span>R</span>oute.com</h1>
+        <p>Wikipediaで6回リンク辿ればいけるか調べる(仮)</p>
+    </header>
+    <aside id="twitter">
+        @twitter_widget()
+    </aside>
+    <article>
+        @helper.form(action = routes.Application.search) {
+            <fieldset>
+                <p><label><input type="text" class="word" name="wordFrom" id="wordFrom" />から</label></p>
+                <p><label><input type="text" class="word" name="wordTo" id="wordTo" />へのルートを</label></p>
+            </fieldset>
+            <input type="submit" class="submit" value="検索" />
+            <input type="button" id="getRandom" value="ランダムに２つのページを選択" />
+        }
+    </article>
+    <aside id="history">
+        <h2>更新履歴</h2>
+        <dl>
+            <dt><time>2011/08/31 02:00</time>ごろ</dt>
+            <dd>HTML書き直し。大文字小文字の違いしかないページ名は同じ扱いにした。</dd>
+            <dt><time>2011/08/30 04:30</time>ごろ</dt>
+            <dd>ページが固まることがあったので改善。ランダムで選ぶときにひとつもリンクがないページは選ばないようにした。</dd>
+            <dt><time>2011/08/29 02:20</time>ごろ</dt>
+            <dd>ランダムに２つのページを選択機能、検索結果のキャッシュ処理を追加、Twitterウィジェット追加、検索結果をつぶやくリンク追加</dd>
+            <dt><time>2011/08/28 02:21</time>ごろ</dt>
+            <dd>公開</dd>
+        </dl>
+    </aside>
+    <footer>
+        <address>なにかありましたら<a href="http://twitter.com/mtgto">@@mtgto</a>まで</address>
+    </footer>
+}
