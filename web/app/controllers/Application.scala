@@ -3,6 +3,7 @@ package controllers
 import net.mtgto.pediaroute.domain.{SearchService, Query}
 
 import play.api._
+import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -54,13 +55,18 @@ object Application extends Controller {
         futureQuery.map { query =>
           val result: Either[Seq[String], String] = query match {
             case Some(query) => new Left(query.way)
-            case _ => new Right("6回のリンクじゃ見つからなかった…ごめんね！") // todo ページがないとき
+            case _ => new Right("6回のリンクじゃ見つからなかった…ごめんね！")
           }
           val endTime = System.currentTimeMillis
           Ok(views.html.search(wordFrom, wordTo, result, (endTime-startTime).toDouble/1000))
         }
       }
     }
+  }
+
+  def random = Action {
+    val query = searchService.getRandomQuery
+    Ok(Json.arr(query.from, query.to))
   }
 
   private def getConfiguration(name: String): String = Play.current.configuration.getString(name).get
