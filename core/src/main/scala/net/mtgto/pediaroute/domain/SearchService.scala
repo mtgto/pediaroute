@@ -33,7 +33,7 @@ class SearchService(
   /**
    * みつからなかったらNoneを返す
    */
-  private def find(startSet: Set[Int], goalSet: Set[Int], depth: Int): Option[LinkedList[Int]] = {
+  private def find(startSet: Set[Int], goalSet: Set[Int], depth: Int): Option[LinkedList[Int]] = synchronized {
     if (depth >= MaxDepth) {
       return None
     }
