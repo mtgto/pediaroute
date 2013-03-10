@@ -16,6 +16,8 @@ import scalax.io.{Resource, Input}
 object Application extends Controller {
   private val titleFilePath = getConfiguration("pediaroute.title_file")
 
+  private val sameTitleFilePath = getConfiguration("pediaroute.same_title_file")
+
   private val forwardLinkFilePath = getConfiguration("pediaroute.forward_link_file")
 
   private val backwardLinkFilePath = getConfiguration("pediaroute.backward_link_file")
@@ -24,11 +26,13 @@ object Application extends Controller {
 
   private val titleMap: Map[String, Int] = titles.zipWithIndex.toMap
 
+  private val sameTitleMap: Map[String, Array[Int]] = readSameTitleMap(sameTitleFilePath)
+
   private val forwardLinks: Array[Array[Int]] = readForwardLinks(forwardLinkFilePath, titles.length)
 
   private val backwardLinks: Array[Array[Int]] = readBackwardLinks(backwardLinkFilePath, titles.length)
 
-  protected[this] val searchService: SearchService = new SearchService(titleMap, titles, forwardLinks, backwardLinks)
+  protected[this] val searchService: SearchService = new SearchService(titleMap, titles, sameTitleMap, forwardLinks, backwardLinks)
 
   protected[this] val searchForm = Form(
     tuple(
@@ -41,7 +45,7 @@ object Application extends Controller {
     Ok(views.html.index(searchForm))
   }
   
-  def search(wordFrom: String, wordTo: String) = Action { implicit request =>
+  def search(wordFrom: String, wordTo: String) = LoggingAction { implicit request =>
     if (!searchService.isTitleExists(wordFrom)) {
       Ok(views.html.search(wordFrom, wordTo, new Right(wordFrom + "というページがないみたい"), 0.0))
     } else if (!searchService.isTitleExists(wordTo)) {
@@ -76,6 +80,12 @@ object Application extends Controller {
     input.lines().map { line =>
       line.dropWhile(_ != ',').tail
     }.toArray[String]
+  }
+
+  protected[this] def readSameTitleMap(filePath: String): Map[String, Array[Int]] = {
+    val input: Input = Resource.fromFile(filePath)
+    val lines: Array[String] = input.lines().toArray
+    (for (i <- 0 until lines.length by 2) yield (lines(i), lines(i+1).split(",").map(_.toInt))).toMap
   }
 
   protected[this] def readForwardLinks(filePath: String, pageCount: Int): Array[Array[Int]] = {
