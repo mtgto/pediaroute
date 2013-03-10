@@ -21,6 +21,11 @@ class DataGenerateService {
       }
     // id to index
     val idToIndexMap: Map[Int, Int] = titleToIds.map(_._2).zipWithIndex.toMap
+    val sameTitleToIndexPath = Path("sametitle.dat")
+    if (!sameTitleToIndexPath.exists) {
+      val lowercaseTitleToIndexes: Array[(String, Int)] = titleToIds.map(titleId => (titleId._1.toLowerCase, idToIndexMap(titleId._2))).sortBy(_._1)
+      writeSameTitleToIndexes(lowercaseTitleToIndexes)
+    }
     val links: Array[Long] = loadPageLinks(idToIndexMap)
     println("num of links = " + links.length)
     writeForwardLinks(titleToIds.length, links.sortBy(_ % 4294967296L))
@@ -46,6 +51,33 @@ class DataGenerateService {
       val (idStr, wordWithComma) = line.span(_ != ',')
       (wordWithComma.tail, idStr.toInt)
     }.toArray[(String, Int)]
+  }
+
+  def writeSameTitleToIndexes(lowercaseTitleToIndexes: Array[(String, Int)]) = {
+    val output: Output = Resource.fromFile("sametitle.dat")
+    for {
+      processor <- output.outputProcessor
+      out = processor.asOutput
+    } {
+      var lastWord = lowercaseTitleToIndexes(0)._1
+      var last = 0
+      for (i <- 1 until lowercaseTitleToIndexes.length) {
+        if (lastWord != lowercaseTitleToIndexes(i)._1) {
+          if (last + 1 < i) {
+            out.write(lastWord + "\n")
+            for (j <- last until i) {
+              if (j > last) {
+                out.write(",")
+              }
+              out.write(lowercaseTitleToIndexes(j)._2.toString)
+            }
+            out.write("\n")
+          }
+          lastWord = lowercaseTitleToIndexes(i)._1
+          last = i
+        }
+      }
+    }
   }
 
   def writeForwardLinks(indexCount: Int, links: Array[Long]): Unit = {
@@ -106,7 +138,7 @@ class DataGenerateService {
   def loadPages(): (Array[(String, Int)]) = {
     Database.forURL("jdbc:mysql://localhost/wikipedia", driver = "com.mysql.jdbc.Driver", user = "user") withSession { implicit session: Session =>
       val query = for {
-        page <- Pages if page.namespace === 0L && page.isRedirect === false
+        page <- Pages if page.namespace === 0L
       } yield (page.id, page.title)
       query.list.map {
         case (id, title) => (new String(title, "UTF-8"), id)
@@ -116,12 +148,12 @@ class DataGenerateService {
 
   def loadPageLinks(idToIndexMap: Map[Int, Int]): Array[Long] = {
     Database.forURL("jdbc:mysql://localhost/wikipedia", driver = "com.mysql.jdbc.Driver", user = "user") withSession { implicit session: Session =>
-      val rowCount = 56235188
+      val rowCount = 59394925
       val perRowCount = 10000000
       val links = new Array[Long](rowCount)
       val query = for {
         pageLink <- PageLinks
-        page <- Pages if pageLink.title === page.title && pageLink.namespace === 0L && page.namespace === 0L && page.isRedirect === false
+        page <- Pages if pageLink.title === page.title && pageLink.namespace === 0L && page.namespace === 0L
       } yield (pageLink.from, page.id)
       var index = 0
       for (i <- 0 until rowCount by perRowCount; subquery = query.drop(i).take(perRowCount)) {
