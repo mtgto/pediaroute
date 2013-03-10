@@ -8,18 +8,15 @@ import scalax.io.{Resource, Input}
 object DataGenerator extends App {
   val titleIdMap = readTitles()
   val titleMap = titleIdMap.zipWithIndex.toMap
+  val sameTitleMap = readSameTitleMap
   val links = readForwardLinks(titleIdMap.length)
   val revLinks = readBackwardLinks(titleIdMap.length)
   val service = new SearchService(
-    titleMap, titleIdMap, links, revLinks
+    titleMap, titleIdMap, sameTitleMap, links, revLinks
   )
   Range(0, 100).foreach { _ =>
     val query = service.getRandomQuery
-    try {
-      println("[%s:%s] %s".format(query.from, query.to, service.find(query.from, query.to)))
-    } catch {
-      case e => println("[%s:%s] %s".format(query.from, query.to, e))
-    }
+    println("[%s:%s] %s".format(query.from, query.to, service.find(query.from, query.to)))
   }
 
   def readTitles(): Array[String] = {
@@ -27,6 +24,12 @@ object DataGenerator extends App {
     input.lines().map { line =>
       line.dropWhile(_ != ',').tail
     }.toArray[String]
+  }
+
+  def readSameTitleMap(): Map[String, Array[Int]] = {
+    val input: Input = Resource.fromFile("sametitle.dat")
+    val lines: Array[String] = input.lines().toArray
+    (for (i <- 0 until lines.length by 2) yield (lines(i), lines(i+1).split(",").map(_.toInt))).toMap
   }
 
   def readForwardLinks(pageCount: Int): Array[Array[Int]] = {

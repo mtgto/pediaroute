@@ -5,12 +5,13 @@ import collection.mutable.{Set, HashSet, LinkedList}
 import util.Random
 
 class SearchService(
-  titleMap: Map[String, Int], titleIdMap: Array[String], links: Array[Array[Int]], revLinks: Array[Array[Int]]) {
+  titleMap: Map[String, Int], titleIdMap: Array[String], sameTitleMap: Map[String, Array[Int]], links: Array[Array[Int]], revLinks: Array[Array[Int]]) {
   private val MaxDepth = 6
 
   private def getIndexSet(word: String): Option[Set[Int]] = {
-    titleMap.get(word).map { index =>
-      HashSet[Int](index)
+    sameTitleMap.get(word.toLowerCase) match {
+      case Some(indexes) => Some(HashSet[Int](indexes:_*))
+      case None => titleMap.get(word).map(index => HashSet[Int](index))
     }
   }
 
