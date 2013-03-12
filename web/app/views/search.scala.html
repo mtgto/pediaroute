@@ -30,7 +30,7 @@
         <li><a href="@routes.Application.search(wordTo, wordFrom)">「@wordTo」から「@wordFrom」を検索する</a></li>
         @result match {
             case Left(wordList) => {
-                <li><a href="https://twitter.com/home?status=「@helper.urlEncode(wordFrom)」から「@helper.urlEncode(wordTo)」へはWikipediaで@(wordList.length)リンクで行けるよ！ @helper.urlEncode("#pediaroute")" target="_blank">結果をTwitterにつぶやく (別ウィンドウで開きます)</a></li>
+                <li><a href="https://twitter.com/home?status=「@helper.urlEncode(wordFrom)」から「@helper.urlEncode(wordTo)」へはWikipediaで@(wordList.length-1)リンクで行けるよ！ http://pediaroute.com/search?wordFrom=@helper.urlEncode(helper.urlEncode(wordFrom)+"&wordTo="+helper.urlEncode(wordTo)) @helper.urlEncode("#pediaroute")" target="_blank">結果をTwitterにつぶやく (別ウィンドウで開きます)</a></li>
             }
             case Right(_) => {
                 <li><a href="https://twitter.com/home?status=「@helper.urlEncode(wordFrom)」から「@helper.urlEncode(wordTo)」へはWikipediaで6回のリンクじゃいけないみたい… @helper.urlEncode("#pediaroute")" target="_blank">結果をTwitterにつぶやく (別ウィンドウで開きます)</a></li>

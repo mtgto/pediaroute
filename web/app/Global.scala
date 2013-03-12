@@ -16,8 +16,9 @@ object Global extends WithFilters(AccessLog) {
 object AccessLog extends Filter {
   override def apply(next: RequestHeader => Result)(request: RequestHeader): Result = {
     val result = next(request)
-//    play.Logger.info(request + "\n\t => " + result)
-    play.Logger.info("%s - guest [%s] \"%s %s %s\"".format(request.remoteAddress, new DateTime(), request.method, request.uri, request.version))
+    play.Logger.info("%s - guest [%s] \"%s %s %s\"".format(
+      request.remoteAddress, new DateTime(), request.method, request.uri, request.version)
+    )
     result
   }
 }

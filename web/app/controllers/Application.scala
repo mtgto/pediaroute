@@ -45,7 +45,7 @@ object Application extends Controller {
     Ok(views.html.index(searchForm))
   }
   
-  def search(wordFrom: String, wordTo: String) = LoggingAction { implicit request =>
+  def search(wordFrom: String, wordTo: String) = Action { implicit request =>
     if (!searchService.isTitleExists(wordFrom)) {
       Ok(views.html.search(wordFrom, wordTo, new Right(wordFrom + "というページがないみたい"), 0.0))
     } else if (!searchService.isTitleExists(wordTo)) {
