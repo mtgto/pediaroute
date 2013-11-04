@@ -45,25 +45,23 @@ object Application extends Controller {
     Ok(views.html.index(searchForm))
   }
   
-  def search(wordFrom: String, wordTo: String) = Action { implicit request =>
+  def search(wordFrom: String, wordTo: String) = Action.async { implicit request =>
     if (!searchService.isTitleExists(wordFrom)) {
-      Ok(views.html.search(wordFrom, wordTo, new Right(wordFrom + "というページがないみたい"), 0.0))
+      Future(Ok(views.html.search(wordFrom, wordTo, new Right(wordFrom + "というページがないみたい"), 0.0)))
     } else if (!searchService.isTitleExists(wordTo)) {
-      Ok(views.html.search(wordFrom, wordTo, new Right(wordTo + "というページがないみたい"), 0.0))
+      Future(Ok(views.html.search(wordFrom, wordTo, new Right(wordTo + "というページがないみたい"), 0.0)))
     } else {
       val startTime = System.currentTimeMillis
       val futureQuery: Future[Option[Query]] = Future {
         searchService.find(wordFrom, wordTo)
       }
-      Async {
-        futureQuery.map { query =>
-          val result: Either[Seq[String], String] = query match {
-            case Some(query) => new Left(query.way)
-            case _ => new Right("6回のリンクじゃ見つからなかった…ごめんね！")
-          }
-          val endTime = System.currentTimeMillis
-          Ok(views.html.search(wordFrom, wordTo, result, (endTime-startTime).toDouble/1000))
+      futureQuery.map { query =>
+        val result: Either[Seq[String], String] = query match {
+          case Some(query) => new Left(query.way)
+          case _ => new Right("6回のリンクじゃ見つからなかった…ごめんね！")
         }
+        val endTime = System.currentTimeMillis
+        Ok(views.html.search(wordFrom, wordTo, result, (endTime-startTime).toDouble/1000))
       }
     }
   }

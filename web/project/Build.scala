@@ -12,7 +12,7 @@ object ApplicationBuild extends Build {
   )
 
   lazy val core = Project(id = "core", base = file("modules/core")).settings(
-    scalaVersion := "2.10.0"
+    scalaVersion := "2.10.2"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
