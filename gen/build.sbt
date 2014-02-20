@@ -19,4 +19,7 @@ libraryDependencies := Seq(
 
 scalacOptions ++= Seq("-deprecation", "-unchecked", "-Xlint", "-feature", "-encoding", "UTF8")
 
+javaOptions in run += "-Xmx4G"
+
 fork in test := true
+
