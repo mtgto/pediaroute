@@ -22,6 +22,8 @@ class Download
     exec('echo "DROP TABLE IF EXISTS page; DROP TABLE IF EXISTS pagelinks;" | mysql -u user wikipedia')
     exec('gzcat jawiki-latest-page.sql.gz | time mysql -u user wikipedia')
     exec('gzcat jawiki-latest-pagelinks.sql.gz | time mysql -u user wikipedia')
+    exec('rm jawiki-latest-page.sql.gz')
+    exec('rm jawiki-latest-pagelinks.sql.gz')
     exec("echo '#{latest_version}' > LAST_VERSION")
   end
 end

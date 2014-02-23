@@ -8,6 +8,10 @@ import Resource._
 import java.util.Arrays
 
 class DataGenerateService {
+  private[this] val pages = TableQuery[Pages]
+
+  private[this] val pageLinks = TableQuery[PageLinks]
+
   def generate(): Unit = {
     //val titleToIds: Array[(String, Int)] = Array(("AAA", 123), ("BBB", 45), ("CCC", 678))
     val titleToIdsPath = Path("title.dat")
@@ -138,7 +142,7 @@ class DataGenerateService {
   def loadPages(): (Array[(String, Int)]) = {
     Database.forURL("jdbc:mysql://localhost/wikipedia", driver = "com.mysql.jdbc.Driver", user = "user") withSession { implicit session: Session =>
       val query = for {
-        page <- Pages if page.namespace === 0L
+        page <- pages if page.namespace === 0L
       } yield (page.id, page.title)
       query.list.map {
         case (id, title) => (new String(title, "UTF-8"), id)
@@ -152,8 +156,8 @@ class DataGenerateService {
       val perRowCount = 10000000
       val links = new Array[Long](rowCount)
       val query = for {
-        pageLink <- PageLinks
-        page <- Pages if pageLink.title === page.title && pageLink.namespace === 0L && page.namespace === 0L
+        pageLink <- pageLinks
+        page <- pages if pageLink.title === page.title && pageLink.namespace === 0L && page.namespace === 0L
       } yield (pageLink.from, page.id)
       var index = 0
       for (i <- 0 until rowCount by perRowCount; subquery = query.drop(i).take(perRowCount)) {
