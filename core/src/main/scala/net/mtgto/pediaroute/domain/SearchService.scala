@@ -78,7 +78,7 @@ class SearchService(
   }
 
   def isTitleExists(title: String): Boolean = {
-    titleMap.contains(title)
+    titleMap.contains(title.toLowerCase)
   }
 
   def getRandomQuery: Query = {

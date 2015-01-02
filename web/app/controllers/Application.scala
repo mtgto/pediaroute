@@ -47,9 +47,9 @@ object Application extends Controller {
   
   def search(wordFrom: String, wordTo: String) = Action.async { implicit request =>
     if (!searchService.isTitleExists(wordFrom)) {
-      Future(Ok(views.html.search(wordFrom, wordTo, new Right(wordFrom + "というページがないみたい"), 0.0)))
+      Future.successful(Ok(views.html.search(wordFrom, wordTo, new Right(wordFrom + "というページがないみたい"), 0.0)))
     } else if (!searchService.isTitleExists(wordTo)) {
-      Future(Ok(views.html.search(wordFrom, wordTo, new Right(wordTo + "というページがないみたい"), 0.0)))
+      Future.successful(Ok(views.html.search(wordFrom, wordTo, new Right(wordTo + "というページがないみたい"), 0.0)))
     } else {
       val startTime = System.currentTimeMillis
       val futureQuery: Future[Option[Query]] = Future {
