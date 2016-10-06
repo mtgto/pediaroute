@@ -47,7 +47,7 @@ class Download < Thor
   end
 
   def get_latest_version
-    doc = Nokogiri::HTML(open('http://dumps.wikimedia.org/jawiki/'))
+    doc = Nokogiri::HTML(open('https://dumps.wikimedia.org/jawiki/'))
     doc.css('a')[-2].text.sub(/[^\d]/, '')
   end
 
